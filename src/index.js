@@ -1,5 +1,5 @@
 import os from "os"
-import {readDir} from "./ls/ls.js"
+import {ls} from "./ls/ls.js"
 import path from "path"
 import {cat} from "./cat/cat.js";
 import fs from "fs"
@@ -9,17 +9,19 @@ import {rm} from "./rm/rm.js";
 import {rn} from "./rename/rn.js";
 import {mkdir} from "./mkdir/mkdir.js";
 import {hash} from "./hash/hash.js";
+import {compress} from "./compress/compress.js";
+import {size} from "./size/size.js";
+import {decompress} from "./decompress/decompress.js";
+import {Os} from "./os/os.js";
+import {printCyan, printRed} from "./colors/colors.js";
+import {cp, cpDir} from "./cp/cp.js";
 class App {
     constructor() {
+        const testOs = new Os()
+
         const commands = {
-            ls: async () => {
-                const files = await readDir(this.currentPath)
-                console.table(files.map(file => {
-                    return {
-                        name: file.name,
-                        type: file.isFile() ? 'file' : 'dir'
-                    }
-                }))
+            ls: async (args) => {
+                console.table(await ls(path.join(this.currentPath, args[0] || '')))
             },
             ".exit": () => {
                 console.log(`\nThank you for using File Manager, ${this.userName}, goodbye`)
@@ -53,10 +55,34 @@ class App {
             },
             hash: async (args) => {
                 await hash(path.join(this.currentPath, args[0]))
+            },
+            compress: async (args) => {
+                await compress(path.join(this.currentPath, args[0]), path.join(this.currentPath, args[1] || args[0]))
+            },
+            workspace: async () => {
+                await commands.cd(['/mnt/sda2/aENOKH/WorkSpace/file-manager-nodejs'])
+            },
+            size: async (args) => {
+                await size(path.join(this.currentPath, args[0]))
+            },
+            decompress: async (args) => {
+                await decompress(path.join(this.currentPath, args[0]), path.join(this.currentPath, args[1] || args[0]))
+            },
+            os: async (args) => {
+                testOs[args[0].replace(/--/, "")]()
+            },
+            cp: async (args = []) => {
+                if (args.includes('-r')) {
+                    args.splice(args.indexOf('-r'), 1)
+                    await cpDir(path.join(this.currentPath, args[0]), path.join(this.currentPath, args[1]))
+                    return
+                }
+                await cp(path.join(this.currentPath, args[0]), path.join(this.currentPath, args[1]))
             }
         }
 
-        this.currentPath = os.homedir()
+        // this.currentPath = os.homedir()
+        this.currentPath = '/mnt/sda2/aENOKH/WorkSpace/file-manager-nodejs'
 
         this.userName = process.argv.slice(2).find(arg => arg.startsWith('--username='))?.slice(('--username=').length) || os.userInfo().username
         process.stdout.write(`\nWelcome to the File Manager, ${this.userName}!\n`)
@@ -64,12 +90,16 @@ class App {
 
         process.stdin.on("data", async (chunk) => {
             const command = commands[chunk.toString().trim().split(' ').at(0)] || (() => {
-                console.log('unknown command!')
+                printRed('unknown command!')
             })
 
             await command(chunk.toString().trim().split(' ').slice(1))
 
             process.stdout.write(`\nYou are currently in ${this.currentPath} \n`)
+        })
+        process.on("SIGINT", () => {
+            printCyan(`\nThank you for using File Manager, ${this.userName}, goodbye`)
+            process.exit()
         })
     }
 }

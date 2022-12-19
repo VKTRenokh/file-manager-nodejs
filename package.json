@@ -1,10 +1,13 @@
 {
   "name": "file-manager-nodejs",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "type": "module",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src"
   },
   "repository": {
@@ -17,5 +20,6 @@
   "bugs": {
     "url": "https://github.com/VKTRenokh/file-manager-nodejs/issues"
   },
-  "homepage": "https://github.com/VKTRenokh/file-manager-nodejs#readme"
+  "homepage": "https://github.com/VKTRenokh/file-manager-nodejs#readme",
+  "description": ""
 }
