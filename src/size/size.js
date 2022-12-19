@@ -3,7 +3,7 @@ import fs from "fs/promises";
 
 export const size = async path => new Promise(async (res, rej) => {
     if (!await exists(path)) {
-        rej()
+        rej('operation failed')
         return
     }
 
