@@ -92,7 +92,11 @@ class App {
                 printRed('unknown command!')
             })
 
-            await command(chunk.toString().trim().split(' ').slice(1))
+            try {
+                await command(chunk.toString().trim().split(' ').slice(1))
+            } catch (e) {
+                printRed('operation failed :(')
+            }
 
             process.stdout.write(`\nYou are currently in ${this.currentPath} \n`)
         })
