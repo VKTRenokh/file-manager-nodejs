@@ -81,8 +81,7 @@ class App {
             }
         }
 
-        // this.currentPath = os.homedir()
-        this.currentPath = '/mnt/sda2/aENOKH/WorkSpace/file-manager-nodejs'
+        this.currentPath = os.homedir()
 
         this.userName = process.argv.slice(2).find(arg => arg.startsWith('--username='))?.slice(('--username=').length) || os.userInfo().username
         process.stdout.write(`\nWelcome to the File Manager, ${this.userName}!\n`)
