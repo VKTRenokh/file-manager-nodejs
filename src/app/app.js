@@ -1,5 +1,5 @@
-import { FileManager } from "./file-manager/file-manager.js";
-import { User } from "./user/user.js";
+import { FileManager } from "../file-manager/file-manager.js";
+import { User } from "../user/user.js";
 
 export class App {
   constructor() {
