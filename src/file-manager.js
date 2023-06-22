@@ -190,7 +190,7 @@ export class FileManager {
   }
 
   error() {
-    throw new Error("there no such command");
+    console.log("\nthere no such command\n");
   }
 
   ".exit"() {
