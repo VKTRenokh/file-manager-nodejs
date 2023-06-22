@@ -1,7 +1,7 @@
 import path from "path";
 import { createHash } from "crypto";
 import { fileURLToPath } from "url";
-import { exists } from "./utils/exists.js";
+import { exists } from "../utils/exists.js";
 import * as os from "os";
 import * as fs from "fs";
 import * as zlib from "zlib";
@@ -17,7 +17,7 @@ export class FileManager {
     console.log(`You are currently in ${this.location}\n`);
 
     process.stdin.on("data", async (data) => {
-      const command = data.toString("utf-8").trim().split(' ');
+      const command = data.toString("utf-8").trim().split(" ");
       const parsedCommand = this.parseCommand(command);
 
       if (!this[parsedCommand.command]) {
@@ -51,13 +51,13 @@ export class FileManager {
   }
 
   async cd(args) {
-    const newLocation = path.join(this.location, args.join(' '));
+    const newLocation = path.join(this.location, args.join(" "));
 
     if (!(await exists(newLocation))) {
       throw new Error("\nthere is no such directory\n");
     }
 
-    this.location = newLocation
+    this.location = newLocation;
   }
 
   async hash(args) {
