@@ -17,7 +17,7 @@ export class FileManager {
     console.log(`You are currently in ${this.location}\n`);
 
     process.stdin.on("data", async (data) => {
-      const command = data.toString("utf-8").trim().split(" ");
+      const command = data.toString("utf-8").trim().split(' ');
       const parsedCommand = this.parseCommand(command);
 
       if (!this[parsedCommand.command]) {
@@ -51,13 +51,16 @@ export class FileManager {
   }
 
   async cd(args) {
-    const newLocation = path.join(this.location, args[0]);
+    const newLocation = path.join(this.location, args.join(' '));
+
+    console.log(args.join(' '))
+
 
     if (!(await exists(newLocation))) {
       throw new Error("\nthere is no such directory\n");
     }
 
-    this.location = path.join(this.location, args[0]);
+    this.location = newLocation
   }
 
   async hash(args) {
