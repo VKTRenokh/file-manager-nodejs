@@ -53,9 +53,6 @@ export class FileManager {
   async cd(args) {
     const newLocation = path.join(this.location, args.join(' '));
 
-    console.log(args.join(' '))
-
-
     if (!(await exists(newLocation))) {
       throw new Error("\nthere is no such directory\n");
     }
@@ -112,7 +109,7 @@ export class FileManager {
   }
 
   async add(args) {
-    await fs.promises.writeFile(args[0]);
+    await fs.promises.writeFile(path.join(this.location, args[0]), "");
   }
 
   async rn(args) {
