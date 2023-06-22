@@ -1,7 +1,7 @@
 import path from "path";
 import { createHash } from "crypto";
 import { fileURLToPath } from "url";
-import { exists } from "./exists.js";
+import { exists } from "./utils/exists.js";
 import * as os from "os";
 import * as fs from "fs";
 import * as zlib from "zlib";
