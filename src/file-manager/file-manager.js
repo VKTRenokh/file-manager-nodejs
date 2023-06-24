@@ -190,6 +190,16 @@ export class FileManager {
       .pipe(fs.createWriteStream(args[1]));
   }
 
+  async mkdir(args) {
+    if (await exists(args[0])) {
+      throw new Error(errorMessages.operationFailed);
+    }
+
+    await fs.promises.mkdir(path.join(this.location, args[0]), {
+      recursive: true,
+    });
+  }
+
   error() {
     console.log("\nthere no such command\n");
   }
