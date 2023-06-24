@@ -1,17 +1,14 @@
 import path from "path";
 import { createHash } from "crypto";
-import { fileURLToPath } from "url";
 import { exists } from "../utils/exists.js";
 import * as os from "os";
 import * as fs from "fs";
 import * as zlib from "zlib";
 import errorMessages from "../constants/constants.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 export class FileManager {
-  constructor(userName) {
-    this.location = __dirname;
+  constructor(userName, initialLocation) {
+    this.location = initialLocation;
     this.userName = userName;
 
     console.log(`Welcome to the File Manager, ${userName}!\n`);
