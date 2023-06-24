@@ -5,6 +5,7 @@ import { exists } from "../utils/exists.js";
 import * as os from "os";
 import * as fs from "fs";
 import * as zlib from "zlib";
+import errorMessages from "../constants/constants.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -54,7 +55,7 @@ export class FileManager {
     const newLocation = path.join(this.location, args.join(" "));
 
     if (!(await exists(newLocation))) {
-      throw new Error("\nthere is no such directory\n");
+      throw new Error(errorMessages.operationFailed);
     }
 
     this.location = newLocation;
@@ -62,7 +63,7 @@ export class FileManager {
 
   async hash(args) {
     if (!(await exists(args[0]))) {
-      throw new Error("\n there is no such file");
+      throw new Error(errorMessages.operationFailed);
     }
 
     fs.createReadStream(args[0])
@@ -114,7 +115,7 @@ export class FileManager {
 
   async rn(args) {
     if (!args[0] || args[1]) {
-      throw new Error("to few args");
+      throw new Error(errorMessages.operationFailed);
     }
 
     await fs.promises.rename(args[0], args[1]);
@@ -122,7 +123,7 @@ export class FileManager {
 
   async cp(args) {
     if (!(await exists(args[0])) || (await exists(args[1]))) {
-      throw new Error("err");
+      throw new Error(errorMessages.operationFailed);
     }
 
     await fs.promises.cp(args[0], args[1]);
@@ -134,7 +135,7 @@ export class FileManager {
 
   async rm(args) {
     if (!(await exists(args[0]))) {
-      throw new Error("file doesn't exists");
+      throw new Error(errorMessages.operationFailed);
     }
 
     await fs.promises.rm(args[0], {
@@ -171,7 +172,7 @@ export class FileManager {
 
   async compress(args) {
     if (!(await exists(args[0])) || (await exists(args[1]))) {
-      throw new Error("compress error");
+      throw new Error(errorMessages.operationFailed);
     }
 
     fs.createReadStream(args[0])
@@ -181,7 +182,7 @@ export class FileManager {
 
   async decompress(args) {
     if (!(await exists(args[0])) || (await exists(args[1]))) {
-      throw new Error("decompress error");
+      throw new Error(errorMessages.operationFailed);
     }
 
     fs.createReadStream(args[0])
