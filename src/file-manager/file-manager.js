@@ -5,6 +5,7 @@ import * as os from "os";
 import * as fs from "fs";
 import * as zlib from "zlib";
 import errorMessages from "../constants/constants.js";
+import { split } from "../transforms/split.js";
 
 export class FileManager {
   constructor(userName, initialLocation) {
@@ -14,9 +15,10 @@ export class FileManager {
     console.log(`Welcome to the File Manager, ${userName}!\n`);
     console.log(`You are currently in ${this.location}\n`);
 
-    process.stdin.on("data", async (data) => {
-      const command = data.toString("utf-8").trim().split(" ");
-      const parsedCommand = this.parseCommand(command);
+    process.stdin.pipe(split).on("data", async (data) => {
+      const parsedCommand = this.parseCommand(data);
+
+      console.log(parsedCommand.args);
 
       if (!this[parsedCommand.command]) {
         this.error();
@@ -49,7 +51,7 @@ export class FileManager {
   }
 
   async cd(args) {
-    const newLocation = path.join(this.location, args.join(" "));
+    const newLocation = path.join(this.location, args[0]);
 
     if (!(await exists(newLocation))) {
       throw new Error(errorMessages.operationFailed);
