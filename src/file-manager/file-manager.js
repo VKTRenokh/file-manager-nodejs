@@ -122,11 +122,19 @@ export class FileManager {
   }
 
   async cp(args) {
-    if (!(await exists(args[0])) || (await exists(args[1]))) {
-      throw new Error(errorMessages.operationFailed);
-    }
+    return new Promise(async (res, rej) => {
+      if (!(await exists(args[0])) || (await exists(args[1]))) {
+        throw new Error(errorMessages.operationFailed);
+      }
 
-    await fs.promises.cp(args[0], args[1]);
+      const readStream = fs.createReadStream(args[0]);
+      const writeStream = fs.createWriteStream(args[1]);
+
+      const copy = readStream.pipe(writeStream);
+
+      copy.on("error", (err) => rej(err));
+      copy.on("end", () => res());
+    });
   }
 
   async mv(args) {
