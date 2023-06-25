@@ -155,7 +155,14 @@ export class FileManager {
   os(args) {
     const cmds = {
       cpus: () => {
-        console.log(os.cpus());
+        console.table(
+          os.cpus().map((cpu) => {
+            return {
+              model: cpu.model,
+              rate: `${Math.round(cpu.speed / 100) / 10} GHz`,
+            };
+          })
+        );
       },
 
       EOL: () => {
