@@ -6,7 +6,8 @@ export const split = new Transform({
     const splitted = chunk
       .toString()
       .trim()
-      .split(/ +(?=(?:'[^']*'|[^'])*$)/);
+      .split(/ +(?=(?:'[^']*'|[^'])*$)/)
+      .map((word) => word.replace(/\'/g, ""));
 
     cb(null, splitted);
   },
