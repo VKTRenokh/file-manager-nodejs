@@ -18,8 +18,6 @@ export class FileManager {
     process.stdin.pipe(split).on("data", async (data) => {
       const parsedCommand = this.parseCommand(data);
 
-      console.log(parsedCommand.args);
-
       if (!this[parsedCommand.command]) {
         this.error();
         return;
