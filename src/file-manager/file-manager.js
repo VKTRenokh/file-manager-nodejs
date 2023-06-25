@@ -45,7 +45,10 @@ export class FileManager {
   }
 
   up() {
-    this.location = path.dirname(this.location);
+    this.location =
+      this.location === os.homedir()
+        ? this.location
+        : path.dirname(this.location);
   }
 
   async cd(args) {
