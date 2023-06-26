@@ -105,8 +105,26 @@ export class FileManager {
     );
   }
 
-  cat(args) {
-    fs.createReadStream(args[0]).pipe(process.stdout);
+  async cat(args) {
+    return new Promise(async (res, rej) => {
+      if (!await exists(path.join(this.location, args[0]))) {
+        rej(errorMessages.operationFailed)
+      }
+
+      const stream = fs.createReadStream(path.join(this.location, args[0]))
+
+      stream.on('data', (data) => {
+        console.log(data.toString('utf-8'))
+      })
+
+      stream.on('end', () => {
+        res()
+      })
+
+      stream.on('error', () => {
+        rej(errorMessages.operationFailed)
+      })
+    })
   }
 
   async add(args) {
