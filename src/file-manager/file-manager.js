@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as zlib from "zlib";
 import errorMessages from "../constants/constants.js";
 import { split } from "../transforms/split.js";
+import { nextLine } from "../transforms/nextLine.js";
 
 export class FileManager {
   constructor(userName, initialLocation) {
@@ -66,15 +67,21 @@ export class FileManager {
   }
 
   async hash(args) {
-    const parsedPath = this.parsePath(args[0])
+    return new Promise(async (res, rej) => {
+      const parsedPath = this.parsePath(args[0])
 
-    if (!(await exists(parsedPath))) {
-      throw new Error(errorMessages.operationFailed);
-    }
+      if (!(await exists(parsedPath))) {
+        throw new Error(errorMessages.operationFailed);
+      }
 
-    fs.createReadStream(parsedPath)
-      .pipe(createHash("sha256").setEncoding("hex"))
-      .pipe(process.stdout);
+      const hash = fs.createReadStream(parsedPath).pipe(createHash("sha256").setEncoding("hex"))
+
+      hash.pipe(nextLine).pipe(process.stdout)
+
+      hash.on('finish', () => {
+        res()
+      })
+    })
   }
 
   async ls() {
