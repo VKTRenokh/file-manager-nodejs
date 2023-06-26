@@ -80,6 +80,11 @@ export class FileManager {
         throw new Error(errorMessages.operationFailed);
       }
 
+      const stat = await fs.promises.stat(parsedPath);
+
+      if (!stat.isFile()) {
+      }
+
       const hash = fs
         .createReadStream(parsedPath)
         .pipe(createHash("sha256").setEncoding("hex"));
@@ -247,6 +252,12 @@ export class FileManager {
       throw new Error(errorMessages.operationFailed);
     }
 
+    const stat = await fs.promises.stat(firstParsedPath);
+
+    if (!stat.isFile()) {
+      throw new Error(errorMessages.operationFailed);
+    }
+
     fs.createReadStream(firstParsedPath)
       .pipe(zlib.createBrotliCompress())
       .pipe(fs.createWriteStream(secondParsedPath));
@@ -257,6 +268,12 @@ export class FileManager {
     const secondParsedPath = this.parsePath(args[1]);
 
     if (!(await exists(firstParsedPath)) || (await exists(secondParsedPath))) {
+      throw new Error(errorMessages.operationFailed);
+    }
+
+    const stat = await fs.promises.stat(firstParsedPath);
+
+    if (!stat.isFile()) {
       throw new Error(errorMessages.operationFailed);
     }
 
