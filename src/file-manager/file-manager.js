@@ -123,17 +123,18 @@ export class FileManager {
 
   async cp(args) {
     return new Promise(async (res, rej) => {
-      if (!(await exists(args[0])) || (await exists(args[1]))) {
+      if (!(await exists(path.join(this.location, args[0]))) || (await exists(path.join(this.location, args[1])))) {
         rej(errorMessages.operationFailed)
+        return
       }
 
-      const readStream = fs.createReadStream(args[0]);
-      const writeStream = fs.createWriteStream(args[1]);
+      const readStream = fs.createReadStream(path.join(this.location, args[0]));
+      const writeStream = fs.createWriteStream(path.join(this.location, args[1]));
 
-      const copy = readStream.pipe(writeStream);
+      const copy = readStream.pipe(writeStream)
 
-      copy.on("error", (err) => rej(err));
-      copy.on("end", () => res());
+      copy.on('finish', () => res())
+      copy.on('error', () => rej())
     });
   }
 
