@@ -44,6 +44,10 @@ export class FileManager {
     };
   }
 
+  parsePath(str) {
+    return path.join(this.location, str)
+  }
+
   up() {
     this.location =
       this.location === os.homedir()
@@ -52,7 +56,7 @@ export class FileManager {
   }
 
   async cd(args) {
-    const newLocation = path.join(this.location, args[0]);
+    const newLocation = this.parsePath(args[0])
 
     if (!(await exists(newLocation))) {
       throw new Error(errorMessages.operationFailed);
@@ -62,11 +66,13 @@ export class FileManager {
   }
 
   async hash(args) {
-    if (!(await exists(args[0]))) {
+    const parsedPath = this.parsePath(args[0])
+
+    if (!(await exists(parsedPath))) {
       throw new Error(errorMessages.operationFailed);
     }
 
-    fs.createReadStream(args[0])
+    fs.createReadStream(parsedPath)
       .pipe(createHash("sha256").setEncoding("hex"))
       .pipe(process.stdout);
   }
@@ -107,11 +113,13 @@ export class FileManager {
 
   async cat(args) {
     return new Promise(async (res, rej) => {
-      if (!await exists(path.join(this.location, args[0]))) {
+      const parsedPath = this.parsePath(args[0])
+
+      if (!await exists(parsedPath)) {
         rej(errorMessages.operationFailed)
       }
 
-      const stream = fs.createReadStream(path.join(this.location, args[0]))
+      const stream = fs.createReadStream(parsedPath)
 
       stream.on('data', (data) => {
         console.log(data.toString('utf-8'))
@@ -128,26 +136,26 @@ export class FileManager {
   }
 
   async add(args) {
-    await fs.promises.writeFile(path.join(this.location, args[0]), "");
+    await fs.promises.writeFile(this.parsePath(args[0]), '');
   }
 
   async rn(args) {
-    if (!args[0] || args[1]) {
-      throw new Error(errorMessages.operationFailed);
+    if (!await exists(this.parsePath(args[0])) || await exists(this.parsePath(args[1]))) {
+      throw new Error(errorMessages.operationFailed)
     }
 
-    await fs.promises.rename(args[0], args[1]);
+    await fs.promises.rename(this.parsePath(args[0]), this.parsePath(args[1]));
   }
 
   async cp(args) {
     return new Promise(async (res, rej) => {
-      if (!(await exists(path.join(this.location, args[0]))) || (await exists(path.join(this.location, args[1])))) {
+      if (!(await exists(this.parsePath(args[0]))) || (await exists(this.parsePath(args[1])))) {
         rej(errorMessages.operationFailed)
         return
       }
 
-      const readStream = fs.createReadStream(path.join(this.location, args[0]));
-      const writeStream = fs.createWriteStream(path.join(this.location, args[1]));
+      const readStream = fs.createReadStream(this.parsePath(args[0]));
+      const writeStream = fs.createWriteStream(this.parsePath(args[1]));
 
       const copy = readStream.pipe(writeStream)
 
@@ -161,11 +169,13 @@ export class FileManager {
   }
 
   async rm(args) {
-    if (!(await exists(args[0]))) {
+    const parsedPath = this.parsePath(args[0])
+
+    if (!(await exists(parsedPath))) {
       throw new Error(errorMessages.operationFailed);
     }
 
-    await fs.promises.rm(args[0], {
+    await fs.promises.rm(parsedPath, {
       force: true,
       recursive: true,
     });
@@ -209,31 +219,39 @@ export class FileManager {
   }
 
   async compress(args) {
-    if (!(await exists(args[0])) || (await exists(args[1]))) {
+    const firstParsedPath = this.parsePath(args[0])
+    const secondParsedPath = this.parsePath(args[1])
+
+    if (!(await exists(firstParsedPath)) || (await exists(secondParsedPath))) {
       throw new Error(errorMessages.operationFailed);
     }
 
-    fs.createReadStream(args[0])
+    fs.createReadStream(firstParsedPath)
       .pipe(zlib.createBrotliCompress())
-      .pipe(fs.createWriteStream(args[1]));
+      .pipe(fs.createWriteStream(secondParsedPath));
   }
 
   async decompress(args) {
-    if (!(await exists(args[0])) || (await exists(args[1]))) {
+    const firstParsedPath = this.parsePath(args[0])
+    const secondParsedPath = this.parsePath(args[1])
+
+    if (!(await exists(firstParsedPath)) || (await exists(secondParsedPath))) {
       throw new Error(errorMessages.operationFailed);
     }
 
-    fs.createReadStream(args[0])
+    fs.createReadStream(firstParsedPath)
       .pipe(zlib.createBrotliDecompress())
-      .pipe(fs.createWriteStream(args[1]));
+      .pipe(fs.createWriteStream(secondParsedPath));
   }
 
   async mkdir(args) {
-    if (await exists(args[0])) {
+    const parsedPath = this.parsePath(args[0])
+
+    if (await exists(parsedPath)) {
       throw new Error(errorMessages.operationFailed);
     }
 
-    await fs.promises.mkdir(path.join(this.location, args[0]), {
+    await fs.promises.mkdir(parsedPath, {
       recursive: true,
     });
   }
