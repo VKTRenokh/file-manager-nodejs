@@ -13,8 +13,11 @@ export class FileManager {
     this.location = initialLocation;
     this.userName = userName;
 
-    console.log(`Welcome to the File Manager, ${userName}!\n`);
-    console.log(`You are currently in ${this.location}\n`);
+    console.log(
+      "\x1b[33m%s\x1b[0m",
+      `Welcome to the File Manager, ${userName}!\n`
+    );
+    console.log("\x1b[32m%s\x1b[0m", `You are currently in ${this.location}\n`);
 
     process.stdin.pipe(split).on("data", async (data) => {
       const parsedCommand = this.parseCommand(data);
@@ -30,7 +33,10 @@ export class FileManager {
         console.log(e);
       }
 
-      console.log(`\nYou are currently in ${this.location}\n`);
+      console.log(
+        "\x1b[32m%s\x1b[0m",
+        `\nYou are currently in ${this.location}\n`
+      );
     });
 
     process.on("SIGINT", () => {
@@ -46,7 +52,7 @@ export class FileManager {
   }
 
   parsePath(str) {
-    return path.join(this.location, str)
+    return path.join(this.location, str);
   }
 
   up() {
@@ -57,7 +63,7 @@ export class FileManager {
   }
 
   async cd(args) {
-    const newLocation = this.parsePath(args[0])
+    const newLocation = this.parsePath(args[0]);
 
     if (!(await exists(newLocation))) {
       throw new Error(errorMessages.operationFailed);
@@ -68,20 +74,22 @@ export class FileManager {
 
   async hash(args) {
     return new Promise(async (res, rej) => {
-      const parsedPath = this.parsePath(args[0])
+      const parsedPath = this.parsePath(args[0]);
 
       if (!(await exists(parsedPath))) {
         throw new Error(errorMessages.operationFailed);
       }
 
-      const hash = fs.createReadStream(parsedPath).pipe(createHash("sha256").setEncoding("hex"))
+      const hash = fs
+        .createReadStream(parsedPath)
+        .pipe(createHash("sha256").setEncoding("hex"));
 
-      hash.pipe(nextLine).pipe(process.stdout)
+      hash.pipe(nextLine).pipe(process.stdout);
 
-      hash.on('finish', () => {
-        res()
-      })
-    })
+      hash.on("finish", () => {
+        res();
+      });
+    });
   }
 
   async ls() {
@@ -120,35 +128,38 @@ export class FileManager {
 
   async cat(args) {
     return new Promise(async (res, rej) => {
-      const parsedPath = this.parsePath(args[0])
+      const parsedPath = this.parsePath(args[0]);
 
-      if (!await exists(parsedPath)) {
-        rej(errorMessages.operationFailed)
+      if (!(await exists(parsedPath))) {
+        rej(errorMessages.operationFailed);
       }
 
-      const stream = fs.createReadStream(parsedPath)
+      const stream = fs.createReadStream(parsedPath);
 
-      stream.on('data', (data) => {
-        console.log(data.toString('utf-8'))
-      })
+      stream.on("data", (data) => {
+        console.log(data.toString("utf-8"));
+      });
 
-      stream.on('end', () => {
-        res()
-      })
+      stream.on("end", () => {
+        res();
+      });
 
-      stream.on('error', () => {
-        rej(errorMessages.operationFailed)
-      })
-    })
+      stream.on("error", () => {
+        rej(errorMessages.operationFailed);
+      });
+    });
   }
 
   async add(args) {
-    await fs.promises.writeFile(this.parsePath(args[0]), '');
+    await fs.promises.writeFile(this.parsePath(args[0]), "");
   }
 
   async rn(args) {
-    if (!await exists(this.parsePath(args[0])) || await exists(this.parsePath(args[1]))) {
-      throw new Error(errorMessages.operationFailed)
+    if (
+      !(await exists(this.parsePath(args[0]))) ||
+      (await exists(this.parsePath(args[1])))
+    ) {
+      throw new Error(errorMessages.operationFailed);
     }
 
     await fs.promises.rename(this.parsePath(args[0]), this.parsePath(args[1]));
@@ -156,18 +167,21 @@ export class FileManager {
 
   async cp(args) {
     return new Promise(async (res, rej) => {
-      if (!(await exists(this.parsePath(args[0]))) || (await exists(this.parsePath(args[1])))) {
-        rej(errorMessages.operationFailed)
-        return
+      if (
+        !(await exists(this.parsePath(args[0]))) ||
+        (await exists(this.parsePath(args[1])))
+      ) {
+        rej(errorMessages.operationFailed);
+        return;
       }
 
       const readStream = fs.createReadStream(this.parsePath(args[0]));
       const writeStream = fs.createWriteStream(this.parsePath(args[1]));
 
-      const copy = readStream.pipe(writeStream)
+      const copy = readStream.pipe(writeStream);
 
-      copy.on('finish', () => res())
-      copy.on('error', () => rej())
+      copy.on("finish", () => res());
+      copy.on("error", () => rej());
     });
   }
 
@@ -176,7 +190,7 @@ export class FileManager {
   }
 
   async rm(args) {
-    const parsedPath = this.parsePath(args[0])
+    const parsedPath = this.parsePath(args[0]);
 
     if (!(await exists(parsedPath))) {
       throw new Error(errorMessages.operationFailed);
@@ -219,15 +233,15 @@ export class FileManager {
     };
 
     if (!cmds[args[0].slice(2).trim()]) {
-      throw new Error(errorMessages.operationFailed)
+      throw new Error(errorMessages.operationFailed);
     }
 
     cmds[args[0].slice(2).trim()]();
   }
 
   async compress(args) {
-    const firstParsedPath = this.parsePath(args[0])
-    const secondParsedPath = this.parsePath(args[1])
+    const firstParsedPath = this.parsePath(args[0]);
+    const secondParsedPath = this.parsePath(args[1]);
 
     if (!(await exists(firstParsedPath)) || (await exists(secondParsedPath))) {
       throw new Error(errorMessages.operationFailed);
@@ -239,8 +253,8 @@ export class FileManager {
   }
 
   async decompress(args) {
-    const firstParsedPath = this.parsePath(args[0])
-    const secondParsedPath = this.parsePath(args[1])
+    const firstParsedPath = this.parsePath(args[0]);
+    const secondParsedPath = this.parsePath(args[1]);
 
     if (!(await exists(firstParsedPath)) || (await exists(secondParsedPath))) {
       throw new Error(errorMessages.operationFailed);
@@ -252,7 +266,7 @@ export class FileManager {
   }
 
   async mkdir(args) {
-    const parsedPath = this.parsePath(args[0])
+    const parsedPath = this.parsePath(args[0]);
 
     if (await exists(parsedPath)) {
       throw new Error(errorMessages.operationFailed);
@@ -269,6 +283,7 @@ export class FileManager {
 
   ".exit"() {
     console.log(
+      "\x1b[33m%s\x1b[0m",
       `\nThank you for using File Manager, ${this.userName}, goodbye!`
     );
     process.exit();
