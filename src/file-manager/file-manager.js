@@ -124,7 +124,7 @@ export class FileManager {
   async cp(args) {
     return new Promise(async (res, rej) => {
       if (!(await exists(args[0])) || (await exists(args[1]))) {
-        throw new Error(errorMessages.operationFailed);
+        rej(errorMessages.operationFailed)
       }
 
       const readStream = fs.createReadStream(args[0]);
@@ -138,7 +138,7 @@ export class FileManager {
   }
 
   async mv(args) {
-    await this.rn(args);
+    return await this.rn(args);
   }
 
   async rm(args) {
@@ -181,6 +181,10 @@ export class FileManager {
         console.log(os.homedir());
       },
     };
+
+    if (!cmds[args[0].slice(2).trim()]) {
+      throw new Error(errorMessages.operationFailed)
+    }
 
     cmds[args[0].slice(2).trim()]();
   }
